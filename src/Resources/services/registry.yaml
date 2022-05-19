@@ -1,0 +1,8 @@
+services:
+    asdoria_import.handle_resolver_service_registry:
+        class: Asdoria\SyliusImportPlugin\Registry\ServiceRegistry
+        arguments: [!tagged { tag: 'asdoria_import_handler_resolver', index_by: 'type' }]
+
+    asdoria_import.serializer_service_registry:
+        class: Asdoria\SyliusImportPlugin\Registry\ServiceRegistry
+        arguments: [!tagged { tag: 'asdoria_import_serializer', index_by: 'type' }]

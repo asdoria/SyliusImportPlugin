@@ -1,0 +1,11 @@
+services:
+    Asdoria\SyliusImportPlugin\MessageHandler\ImportMessageHandler:
+        arguments:
+            $entityManager: '@doctrine.orm.default_entity_manager'
+            $importRegistry: '@asdoria_import.handle_resolver_registry'
+        tags:
+            -
+                name: messenger.message_handler
+                # only needed if can't be guessed by type-hint
+                handles: Asdoria\SyliusImportPlugin\Message\ImportNotificationInterface
+

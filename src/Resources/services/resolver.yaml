@@ -1,0 +1,11 @@
+services:
+services:
+    asdoria_import.handle_resolver.customer:
+      class: Asdoria\SyliusImportPlugin\Import\Resolver\CustomerHandlerResolver
+      arguments:
+        $serializerServiceRegistry: '@asdoria_import.serializer_service_registry'
+      calls:
+        - [ 'setLogger', ['@logger']]
+      tags:
+        - { name: asdoria_import_handle_resolver, type: 'App\Entity\Customer\Customer' }
+

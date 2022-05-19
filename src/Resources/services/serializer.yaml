@@ -1,0 +1,7 @@
+services:
+    asdoria_import.serializer.customer:
+      class: Asdoria\SyliusImportPlugin\Import\Serializer\BaseSerializer
+      arguments:
+        $entityManager: '@doctrine.orm.default_entity_manager'
+      tags:
+        - { name: asdoria_import_serializer, type: 'App\Entity\Customer\Customer' }

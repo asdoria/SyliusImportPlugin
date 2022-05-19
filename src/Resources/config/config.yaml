@@ -1,0 +1,33 @@
+framework:
+    messenger:
+        # Uncomment this (and the failed transport below) to send failed messages to this transport for later handling.
+        # failure_transport: failed
+
+        transports:
+            # https://symfony.com/doc/current/messenger.html#transport-configuration
+            asdoria_import: '%env(ASDORIA_MESSENGER_TRANSPORT_IMPORT_DSN)%'
+#            options:
+#                queue_name: bulk_edit
+        # failed: 'doctrine://default?queue_name=failed'
+        # sync: 'sync://'
+
+        routing:
+            # route all messages that extend this example base class or interface
+            'Asdoria\SyliusImportPlugin\Message\ImportNotificationInterface': asdoria_import
+
+        buses:
+            asdoria_import.bus:
+                middleware:
+                    # each time a message is handled, the Doctrine connection
+                    # is "pinged" and reconnected if it's closed. Useful
+                    # if your workers run for a long time and the database
+                    # connection is sometimes lost
+                    - doctrine_ping_connection
+                    # After handling, the Doctrine connection is closed,
+                    # which can free up database connections in a worker,
+                    # instead of keeping them open forever
+                    - doctrine_close_connection
+                    # wraps all handlers in a single Doctrine transaction
+                    # handlers do not need to call flush() and an error
+                    # in any handler will cause a rollback
+                    - doctrine_transaction
