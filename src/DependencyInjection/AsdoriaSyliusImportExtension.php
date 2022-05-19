@@ -34,8 +34,6 @@ final class AsdoriaSyliusImportExtension extends Extension
     {
         $config = $this->processConfiguration($this->getConfiguration([], $container), $configs);
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        $container->setParameter('asdoria.import.provider', $config['provider']);
-        $container->setParameter('asdoria.import.doctrine_dbal_connection', $config['doctrine_dbal_connection']);
         $loader->load('services.yaml');
     }
 

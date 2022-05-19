@@ -57,11 +57,11 @@ class Configuration implements ConfigurationInterface
         // Here you should define the parameters that are allowed to
         // configure your bundle. See the documentation linked above for
         // more information on that topic.
-        $rootNode
-            ->addDefaultsIfNotSet()
-            ->children()
-            ->scalarNode('provider')->cannotBeEmpty()->end()
-            ->scalarNode('doctrine_dbal_connection')->cannotBeEmpty()->end();
+//        $rootNode
+//            ->addDefaultsIfNotSet()
+//            ->children()
+//            ->scalarNode('provider')->cannotBeEmpty()->end()
+//            ->scalarNode('doctrine_dbal_connection')->cannotBeEmpty()->end();
 
         return $treeBuilder;
     }
