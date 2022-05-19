@@ -6,7 +6,6 @@ namespace Asdoria\SyliusImportPlugin\MessageHandler;
 
 use Asdoria\Bundle\ImportBundle\Message\ImportNotificationInterface;
 use Asdoria\Bundle\ImportBundle\Resolver\FormConfiguration\FormConfigurationHandleResolverInterface;
-use Asdoria\SyliusImportPlugin\Message\ImportNotificationInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Sylius\Component\Registry\ServiceRegistryInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
