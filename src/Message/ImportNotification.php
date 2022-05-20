@@ -28,9 +28,8 @@ class ImportNotification implements ImportNotificationInterface
     /**
      * @return array
      */
-    public function getConfiguration(?string $key = null): array
+    public function getConfiguration(): array
     {
-        if(!empty($key)) $this->configuration[$key] ?? [];
         return $this->configuration;
     }
     /**

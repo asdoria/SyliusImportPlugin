@@ -14,7 +14,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
+use Sylius\Component\Resource\Model\ResourceInterface;
+use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
 /**
@@ -69,30 +72,24 @@ class BaseSerializer implements SerializerInterface
         $this->context = $context;
     }
 
+    public function getSerializerContext(ResourceInterface $object, string $key): array {
+        $serializerContext = [];
+        $propertyAccessor = PropertyAccess::createPropertyAccessor();
+        $resource = $propertyAccessor->getValue($object, $key);
+        if($resource instanceof ResourceInterface) {
+            $serializerContext  = [
+                AbstractNormalizer::OBJECT_TO_POPULATE => $resource
+            ];
+        }
+        return $serializerContext;
+    }
+    
     /**
      * @return ServiceRegistryInterface
      */
     public function getSerializerResolver(): ServiceRegistryInterface
     {
         return $this->serializerResolver;
-    }
-
-    /**
-     * @param array $importerData
-     */
-    public function setImporterData(array $importerData): void
-    {
-        $this->importerData = $importerData;
-    }
-
-    /**
-     * @param string|null $key
-     *
-     * @return array|null
-     */
-    public function getImporterData(string $key = null): ?array
-    {
-        return $this->importerData[$key] ?? null;
     }
 
     /**
@@ -165,7 +162,6 @@ class BaseSerializer implements SerializerInterface
         $serializer  = $this->getSerializerResolver()->get($className);
         $serializer->setContext($className);
         $serializer->setSerializerResolver($this->getSerializerResolver());
-        $serializer->setImporterData($this->importerData);
 
         return $serializer;
     }

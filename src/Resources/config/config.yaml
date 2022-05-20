@@ -7,8 +7,8 @@ framework:
             # https://symfony.com/doc/current/messenger.html#transport-configuration
             asdoria_import:
                 dsn: '%env(ASDORIA_MESSENGER_TRANSPORT_IMPORT_DSN)%'
-                options:
-                    queue_name: asdoria_import
+#                 options:
+#                     queue_name: asdoria_import
         # failed: 'doctrine://default?queue_name=failed'
         # sync: 'sync://'
 

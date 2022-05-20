@@ -8,6 +8,7 @@ namespace Asdoria\SyliusImportPlugin\Serializer\Model;
 
 use Asdoria\SyliusImportPlugin\Registry\Model\ServiceRegistryInterface;
 use Doctrine\DBAL\Connection;
+use Sylius\Component\Resource\Model\ResourceInterface;
 
 /**
  * Interface SerializerInterface
@@ -18,20 +19,6 @@ use Doctrine\DBAL\Connection;
 interface SerializerInterface
 {
     /**
-     * @return Connection
-     */
-    public function getConnection(): Connection;
-
-    /**
-     * @return string|null
-     */
-    public function getContext(): ?string;
-    /**
-     * @param string|null $context
-     */
-    public function setContext(?string $context): void;
-
-    /**
      * {@inheritdoc}
      */
     public function deserialize(array $data, $type = null, array $context = []);
@@ -40,23 +27,20 @@ interface SerializerInterface
      * @return ServiceRegistryInterface
      */
     public function getSerializerResolver(): ServiceRegistryInterface;
-
-    /**
-     * @param array $importerData
-     */
-    public function setImporterData(array $importerData): void;
-
-
-    /**
-     * @param string|null $key
-     *
-     * @return array|null
-     */
-    public function getImporterData(string $key = null): ?array;
-
     /**
      * @param ServiceRegistryInterface $serializerResolver
      */
     public function setSerializerResolver(ServiceRegistryInterface $serializerResolver): void;
 
+    /**
+     * @return string|null
+     */
+    public function getContext(): ?string;
+
+    /**
+     * @param string|null $context
+     */
+    public function setContext(?string $context): void;
+
+    public function getSerializerContext(ResourceInterface $object, string $key): array;
 }
