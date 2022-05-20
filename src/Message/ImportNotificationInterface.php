@@ -30,5 +30,5 @@ interface ImportNotificationInterface
     /**
      * @return mixed
      */
-    public function getDataByKey();
+    public function getDataByKey(?string $key);
 }

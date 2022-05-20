@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace Asdoria\SyliusImportPlugin\Serializer;
 
 
+use Asdoria\SyliusImportPlugin\Normalizer\ObjectNormalizer;
 use Asdoria\SyliusImportPlugin\Registry\Model\ServiceRegistryInterface;
+use Asdoria\SyliusImportPlugin\Serializer\Callback\DateTimeCallbackTrait;
+use Asdoria\SyliusImportPlugin\Serializer\Model\SerializerInterface;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
@@ -21,46 +25,25 @@ use Symfony\Component\Serializer\Serializer;
  */
 class BaseSerializer implements SerializerInterface
 {
-    /**
-     * @var Serializer
-     */
-    protected Serializer $serializer;
+    use DateTimeCallbackTrait;
+    use LoggerAwareTrait;
+    protected ?Serializer $serializer = null;
+    protected ?string $context = null;
+    protected ServiceRegistryInterface $serializerResolver;
+    protected array $importerData = [];
+    protected EntityManagerInterface $entityManager;
 
 
     /**
-     * @var string|null
-     */
-    protected $context;
-
-    /**
-     * @var ServiceRegistryInterface
-     */
-    protected $serializerResolver;
-
-    /**
-     * @var array
-     */
-    protected $importerData = [];
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
-
-    /**
-     * BaseSerializer constructor.
-     *
      * @param EntityManagerInterface $entityManager
-     * @param                        $path
      */
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        ServiceRegistryInterface $serializerResolver
+    )
     {
         $this->entityManager = $entityManager;
+        $this->serializerResolver = $serializerResolver;
     }
 
     /**
@@ -125,8 +108,7 @@ class BaseSerializer implements SerializerInterface
      */
     protected function getNormalizerContext() : array {
         return [
-            ObjectNormalizer::CALLBACKS => $this->getCallbacks(),
-            ObjectNormalizer::LOGGER => $this->logger
+            ObjectNormalizer::CUSTOM_CALLBACKS => $this->getCallbacks(),
         ];
     }
 
@@ -135,19 +117,15 @@ class BaseSerializer implements SerializerInterface
      */
     protected function getNormalizers(): array
     {
-        $nameConverter = $this->getNameConverter();
         $normalizer = new ObjectNormalizer(
             null,
-            $nameConverter,
+            null,
             null,
             null,
             null,
             null,
             $this->getNormalizerContext()
         );
-        $normalizer->setExtraAttributes($nameConverter->getExtraAttributes());
-        $normalizer->setBeforeInserts($nameConverter->getBeforeInserts());
-        $normalizer->setEm($this->entityManager);
 
         return [$normalizer];
     }
@@ -169,7 +147,6 @@ class BaseSerializer implements SerializerInterface
      */
     public function deserialize(array $data, $type = null, array $context = [])
     {
-        $this->logger = $context[ObjectNormalizer::LOGGER] ?? $this->logger;
         return $this->getSerializer()->deserialize(
             json_encode($data),
             !empty($type) ? $type: $this->getContext(),
@@ -198,7 +175,10 @@ class BaseSerializer implements SerializerInterface
      */
     protected function getCallbacks(): array
     {
-        return [];
+        return [
+            'createdAt' => $this->dateTimeCallback(),
+            'updatedAt' => $this->dateTimeCallback(),
+        ];
     }
 
     /**

@@ -1,7 +1,22 @@
 services:
-    asdoria_import.serializer.customer:
-      class: Asdoria\SyliusImportPlugin\Import\Serializer\BaseSerializer
+    asdoria_import.serializer.parent:
+      class: Asdoria\SyliusImportPlugin\Serializer\BaseSerializer
       arguments:
         $entityManager: '@doctrine.orm.default_entity_manager'
+        $serializerResolver: '@asdoria_import.serializer_service_registry'
+
+    asdoria_import.serializer.customer:
+      class: Asdoria\SyliusImportPlugin\Serializer\CustomerSerializer
+      arguments:
+        $entityManager: '@doctrine.orm.default_entity_manager'
+        $serializerResolver: '@asdoria_import.serializer_service_registry'
       tags:
         - { name: asdoria_import_serializer, type: 'App\Entity\Customer\Customer' }
+
+    asdoria_import.serializer.shop_user:
+      class: Asdoria\SyliusImportPlugin\Serializer\ShopUserSerializer
+      arguments:
+        $entityManager: '@doctrine.orm.default_entity_manager'
+        $serializerResolver: '@asdoria_import.serializer_service_registry'
+      tags:
+        - { name: asdoria_import_serializer, type: 'App\Entity\User\ShopUser' }

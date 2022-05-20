@@ -18,11 +18,11 @@ class ImportNotification implements ImportNotificationInterface
     /**
      * @param array $subject
      */
-    public function __construct(array $subject)
+    public function __construct(array $data, string $entityClass, array $configuration = [])
     {
-        $this->configuration  = $subject['configuration'] ?? [];
-        $this->entityClass    = $subject['entity_class'] ?? null;
-        $this->data           = $subject['data'] ?? [];
+        $this->configuration  = $configuration;
+        $this->entityClass    = $entityClass;
+        $this->data           = $data;
     }
 
     /**

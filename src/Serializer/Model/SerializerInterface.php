@@ -59,10 +59,4 @@ interface SerializerInterface
      */
     public function setSerializerResolver(ServiceRegistryInterface $serializerResolver): void;
 
-    /**
-     * @param array $params
-     *
-     * @return int|null
-     */
-    public function find(array $params): ?int;
 }

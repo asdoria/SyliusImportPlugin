@@ -2,7 +2,9 @@ services:
     Asdoria\SyliusImportPlugin\MessageHandler\ImportMessageHandler:
         arguments:
             $entityManager: '@doctrine.orm.default_entity_manager'
-            $importRegistry: '@asdoria_import.handle_resolver_registry'
+            $importRegistry: '@asdoria_import.handle_resolver_service_registry'
+        calls:
+            - [ 'setLogger', ['@logger']]
         tags:
             -
                 name: messenger.message_handler
