@@ -1,22 +1,28 @@
+parameters:
+  asdoria_import.converter.path: "@@AsdoriaSyliusImportPlugin/src/Resources/config/converter/%s.yaml"
+
 services:
-    asdoria_import.serializer.parent:
+
+
+    asdoria_import.serializer.abstract:
+      abstract: true
       class: Asdoria\SyliusImportPlugin\Serializer\BaseSerializer
-      arguments:
-        $entityManager: '@doctrine.orm.default_entity_manager'
-        $serializerResolver: '@asdoria_import.serializer_service_registry'
+      calls:
+        - [ setEntityManager, ['@doctrine.orm.default_entity_manager']]
+        - [ setSerializerResolver, ['@asdoria_import.serializer_service_registry']]
+        - [ setConverterPath, ['%asdoria_import.converter.path%']]
+
+    asdoria_import.serializer.generic:
+      parent: asdoria_import.serializer.abstract
 
     asdoria_import.serializer.customer:
       class: Asdoria\SyliusImportPlugin\Serializer\CustomerSerializer
-      arguments:
-        $entityManager: '@doctrine.orm.default_entity_manager'
-        $serializerResolver: '@asdoria_import.serializer_service_registry'
+      parent: asdoria_import.serializer.abstract
       tags:
         - { name: asdoria_import_serializer, type: 'App\Entity\Customer\Customer' }
 
     asdoria_import.serializer.shop_user:
       class: Asdoria\SyliusImportPlugin\Serializer\ShopUserSerializer
-      arguments:
-        $entityManager: '@doctrine.orm.default_entity_manager'
-        $serializerResolver: '@asdoria_import.serializer_service_registry'
+      parent: asdoria_import.serializer.abstract
       tags:
         - { name: asdoria_import_serializer, type: 'App\Entity\User\ShopUser' }

@@ -5,20 +5,21 @@ declare(strict_types=1);
 namespace Asdoria\SyliusImportPlugin\Serializer;
 
 
+use Asdoria\SyliusImportPlugin\Configurator\ConfigurationInterface;
+use Asdoria\SyliusImportPlugin\Converter\NameConverter;
 use Asdoria\SyliusImportPlugin\Normalizer\ObjectNormalizer;
 use Asdoria\SyliusImportPlugin\Registry\Model\ServiceRegistryInterface;
 use Asdoria\SyliusImportPlugin\Serializer\Callback\DateTimeCallbackTrait;
 use Asdoria\SyliusImportPlugin\Serializer\Model\SerializerInterface;
-use Doctrine\DBAL\Connection;
-use Doctrine\ORM\EntityManagerInterface;
+use Asdoria\SyliusImportPlugin\Traits\ConverterPathTrait;
+use Asdoria\SyliusImportPlugin\Traits\EntityManagerTrait;
+use Asdoria\SyliusImportPlugin\Traits\ServiceRegistryTrait;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Psr\Log\LoggerAwareTrait;
-use Psr\Log\LoggerInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
-use Symfony\Component\Serializer\Serializer;
 
 /**
  * Class BaseSerializer
@@ -28,33 +29,14 @@ use Symfony\Component\Serializer\Serializer;
  */
 class BaseSerializer implements SerializerInterface
 {
+    use ConverterPathTrait;
     use DateTimeCallbackTrait;
     use LoggerAwareTrait;
+    use EntityManagerTrait;
+    use ServiceRegistryTrait;
     protected ?Serializer $serializer = null;
     protected ?string $context = null;
-    protected ServiceRegistryInterface $serializerResolver;
-    protected array $importerData = [];
-    protected EntityManagerInterface $entityManager;
-
-
-    /**
-     * @param EntityManagerInterface $entityManager
-     */
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        ServiceRegistryInterface $serializerResolver
-    )
-    {
-        $this->entityManager = $entityManager;
-        $this->serializerResolver = $serializerResolver;
-    }
-
-    /**
-     * @return Connection
-     */
-    public function getConnection() : Connection {
-        return $this->entityManager->getConnection();
-    }
+    protected ConfigurationInterface $configuration;
 
     /**
      * @return string|null
@@ -72,18 +54,24 @@ class BaseSerializer implements SerializerInterface
         $this->context = $context;
     }
 
+    /**
+     * @param ResourceInterface $object
+     * @param string            $key
+     *
+     * @return array
+     */
     public function getSerializerContext(ResourceInterface $object, string $key): array {
-        $serializerContext = [];
+        if(!$this->getConfiguration()->isUpdater()) return [];
+
         $propertyAccessor = PropertyAccess::createPropertyAccessor();
-        $resource = $propertyAccessor->getValue($object, $key);
-        if($resource instanceof ResourceInterface) {
-            $serializerContext  = [
-                AbstractNormalizer::OBJECT_TO_POPULATE => $resource
-            ];
-        }
-        return $serializerContext;
+        $resource         = $propertyAccessor->getValue($object, $key);
+        if(!$resource instanceof ResourceInterface)  return [];
+
+        return [
+            AbstractNormalizer::OBJECT_TO_POPULATE => $resource
+        ];
     }
-    
+
     /**
      * @return ServiceRegistryInterface
      */
@@ -105,7 +93,7 @@ class BaseSerializer implements SerializerInterface
      */
     protected function getNormalizerContext() : array {
         return [
-            ObjectNormalizer::CUSTOM_CALLBACKS => $this->getCallbacks(),
+            ObjectNormalizer::IMPORT_CALLBACKS => $this->getCallbacks(),
         ];
     }
 
@@ -116,7 +104,7 @@ class BaseSerializer implements SerializerInterface
     {
         $normalizer = new ObjectNormalizer(
             null,
-            null,
+            $this->getNameConverter(),
             null,
             null,
             null,
@@ -125,6 +113,26 @@ class BaseSerializer implements SerializerInterface
         );
 
         return [$normalizer];
+    }
+
+    /**
+     * @return NameConverter|null
+     */
+    protected function getNameConverter(): ?NameConverter
+    {
+
+        if ($this->nameConverter instanceof NameConverter) {
+            return $this->nameConverter;
+        }
+
+        $path = ($this->getConfiguration()->getProvider() !== ConfigurationInterface::_DEFAULT_PROVIDER) ?
+            sprintf($this->getConverterPath(), $this->getConfiguration()->getProvider()):
+            $this->getConfiguration()->getConverterPath();
+
+        $this->nameConverter = new NameConverter($path);
+        $this->nameConverter->setContext($this->getContext());
+
+        return $this->nameConverter;
     }
 
     /**
@@ -162,6 +170,7 @@ class BaseSerializer implements SerializerInterface
         $serializer  = $this->getSerializerResolver()->get($className);
         $serializer->setContext($className);
         $serializer->setSerializerResolver($this->getSerializerResolver());
+        $serializer->setConfiguration($this->getConfiguration());
 
         return $serializer;
     }
@@ -200,5 +209,21 @@ class BaseSerializer implements SerializerInterface
     protected function camelCaseToSnakeCase($propertyName)
     {
         return strtolower(preg_replace('/[A-Z]/', '_\\0', lcfirst($propertyName)));
+    }
+
+    /**
+     * @return ConfigurationInterface
+     */
+    public function getConfiguration(): ConfigurationInterface
+    {
+        return $this->configuration;
+    }
+
+    /**
+     * @param ConfigurationInterface $configuration
+     */
+    public function setConfiguration(ConfigurationInterface $configuration): void
+    {
+        $this->configuration = $configuration;
     }
 }

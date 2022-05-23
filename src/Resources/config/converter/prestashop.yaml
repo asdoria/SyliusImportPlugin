@@ -1,0 +1,21 @@
+App\Entity\Customer\Customer:
+    normalize: ~
+    denormalize:
+        date_add: createdAt
+        date_upd: updatedAt
+        newsletter: subscribedToNewsletter
+        lastname: lastName
+        firstname: firstName
+
+App\Entity\User\ShopUser:
+    priority:
+        customer: ~
+    normalize: ~
+    denormalize:
+        id_gender: gender
+        lastname: lastName
+        firstname: firstName
+        passwd: password
+        secure_key: salt
+    extra_attributes:
+        enabled: 1

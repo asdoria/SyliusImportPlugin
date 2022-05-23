@@ -49,7 +49,7 @@ class ImportMessageHandler implements MessageHandlerInterface
             return;
         }
 
-        $identifier      = $message->getConfiguration()['identifier'] ?? 'id';
+        $identifier      = $message->getConfiguration()->getIdentifier();
         $identifierValue = $message->getDataByKey($identifier);
         $resource        = !empty($identifierValue) ? $repository->findOneBy([$identifier => $identifierValue]) : null;
         if(!$resource instanceof ResourceInterface) {

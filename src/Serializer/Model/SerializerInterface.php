@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace Asdoria\SyliusImportPlugin\Serializer\Model;
 
 
+use Asdoria\SyliusImportPlugin\Configurator\ConfigurationInterface;
 use Asdoria\SyliusImportPlugin\Registry\Model\ServiceRegistryInterface;
 use Doctrine\DBAL\Connection;
 use Sylius\Component\Resource\Model\ResourceInterface;
@@ -43,4 +44,14 @@ interface SerializerInterface
     public function setContext(?string $context): void;
 
     public function getSerializerContext(ResourceInterface $object, string $key): array;
+
+    /**
+     * @return ConfigurationInterface
+     */
+    public function getConfiguration(): ConfigurationInterface;
+
+    /**
+     * @param ConfigurationInterface $configuration
+     */
+    public function setConfiguration(ConfigurationInterface $configuration): void;
 }

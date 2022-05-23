@@ -1,10 +1,9 @@
 services:
     asdoria_import.handle_resolver.base:
       class: Asdoria\SyliusImportPlugin\Resolver\HandlerResolver
-      arguments:
-        $serializerServiceRegistry: '@asdoria_import.serializer_service_registry'
       calls:
         - [ 'setLogger', ['@logger']]
+        - [ 'setServiceRegistry', ['@asdoria_import.serializer_service_registry']]
 
     asdoria_import.handle_resolver.customer:
       parent: asdoria_import.handle_resolver.base

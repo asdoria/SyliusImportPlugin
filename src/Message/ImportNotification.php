@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Asdoria\SyliusImportPlugin\Message;
 
+use Asdoria\SyliusImportPlugin\Configurator\Configuration;
+use Asdoria\SyliusImportPlugin\Configurator\ConfigurationInterface;
+
 /**
  * Class ImportNotification
  *
@@ -11,14 +14,14 @@ namespace Asdoria\SyliusImportPlugin\Message;
  */
 class ImportNotification implements ImportNotificationInterface
 {
-    protected array $configuration = [];
+    protected ?ConfigurationInterface $configuration = null;
     protected array $data = [];
     protected ?string $entityClass;
 
     /**
      * @param array $subject
      */
-    public function __construct(array $data, string $entityClass, array $configuration = [])
+    public function __construct(array $data, string $entityClass, ?ConfigurationInterface $configuration = null)
     {
         $this->configuration  = $configuration;
         $this->entityClass    = $entityClass;
@@ -26,10 +29,14 @@ class ImportNotification implements ImportNotificationInterface
     }
 
     /**
-     * @return array
+     * @return ConfigurationInterface
      */
-    public function getConfiguration(): array
+    public function getConfiguration(): ConfigurationInterface
     {
+        if (!$this->configuration instanceof ConfigurationInterface) {
+            $this->configuration = new Configuration();
+        }
+
         return $this->configuration;
     }
     /**

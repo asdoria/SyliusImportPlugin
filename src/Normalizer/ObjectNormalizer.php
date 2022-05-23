@@ -16,7 +16,7 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer as BaseObjectNormal
  */
 class ObjectNormalizer extends BaseObjectNormalizer
 {
-    public const CUSTOM_CALLBACKS = 'import_callbacks';
+    public const IMPORT_CALLBACKS = 'import_callbacks';
 
     /**
      * @var array
@@ -29,7 +29,7 @@ class ObjectNormalizer extends BaseObjectNormalizer
     protected function setAttributeValue($object, $attribute, $value, $format = null, array $context = [])
     {
         try {
-            $callback = $this->defaultContext[self::CUSTOM_CALLBACKS][$attribute] ?? null;
+            $callback = $this->defaultContext[self::IMPORT_CALLBACKS][$attribute] ?? null;
             if ($callback) {
                 $value = call_user_func($callback, $value, $object, $attribute, $this->data);
             }

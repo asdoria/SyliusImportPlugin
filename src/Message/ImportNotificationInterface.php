@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Asdoria\SyliusImportPlugin\Message;
 
+use Asdoria\SyliusImportPlugin\Configurator\ConfigurationInterface;
+
 /**
  * Interface ImportNotificationInterface
  * @package Asdoria\SyliusImportPlugin\Message
@@ -13,9 +15,9 @@ namespace Asdoria\SyliusImportPlugin\Message;
 interface ImportNotificationInterface
 {
     /**
-     * @return array
+     * @return ConfigurationInterface
      */
-    public function getConfiguration(): array;
+    public function getConfiguration(): ConfigurationInterface;
 
     /**
      * @return string|null
