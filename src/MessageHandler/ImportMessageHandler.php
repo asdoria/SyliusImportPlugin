@@ -35,7 +35,7 @@ class ImportMessageHandler implements MessageHandlerInterface
         $this->importRegistry = $importRegistry;
     }
 
-    public function __invoke(ImportNotificationInterface $message)
+    public function __invoke(ImportNotificationInterface $message): void
     {
         $this->logger->info('start ImportMessageHandler');
         // ... do some work - like sending an SMS message!
@@ -52,13 +52,13 @@ class ImportMessageHandler implements MessageHandlerInterface
         $identifier      = $message->getConfiguration()->getIdentifier();
         $identifierValue = $message->getDataByKey($identifier);
         $resource        = !empty($identifierValue) ? $repository->findOneBy([$identifier => $identifierValue]) : null;
-        if(!$resource instanceof ResourceInterface) {
-            $class = $message->getEntityClass();
-            $resource = new $class;
-        }
+        $existing        = $resource instanceof ResourceInterface;
 
-        $importHandle->handle($resource, $message);
+        if ($existing && !$message->getConfiguration()->isUpdater()) return;
 
-        $repository->add($resource);
+        $entity = $importHandle->handle($message, $resource);
+
+        if (!$existing)
+            $this->entityManager->persist($entity);
     }
 }

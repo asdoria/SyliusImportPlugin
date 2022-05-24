@@ -12,7 +12,7 @@ namespace Asdoria\SyliusImportPlugin\Configurator;
 interface ConfigurationInterface
 {
     const _PRESTASHOP_PROVIDER = 'prestashop';
-    const _DEFAULT_PROVIDER = 'custom';
+    const _CUSTOM_PROVIDER = 'custom';
 
     /**
      * @return string|null

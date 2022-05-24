@@ -6,13 +6,17 @@ namespace Asdoria\SyliusImportPlugin\Serializer;
 
 
 use Asdoria\SyliusImportPlugin\Configurator\ConfigurationInterface;
+use Asdoria\SyliusImportPlugin\Converter\Model\NameConverterInterface;
 use Asdoria\SyliusImportPlugin\Converter\NameConverter;
 use Asdoria\SyliusImportPlugin\Normalizer\ObjectNormalizer;
 use Asdoria\SyliusImportPlugin\Registry\Model\ServiceRegistryInterface;
 use Asdoria\SyliusImportPlugin\Serializer\Callback\DateTimeCallbackTrait;
 use Asdoria\SyliusImportPlugin\Serializer\Model\SerializerInterface;
+use Asdoria\SyliusImportPlugin\Traits\ContextTrait;
+use Asdoria\SyliusImportPlugin\Traits\ConfigurationTrait;
 use Asdoria\SyliusImportPlugin\Traits\ConverterPathTrait;
 use Asdoria\SyliusImportPlugin\Traits\EntityManagerTrait;
+use Asdoria\SyliusImportPlugin\Traits\KernelTrait;
 use Asdoria\SyliusImportPlugin\Traits\ServiceRegistryTrait;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Psr\Log\LoggerAwareTrait;
@@ -20,6 +24,7 @@ use Sylius\Component\Resource\Model\ResourceInterface;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * Class BaseSerializer
@@ -29,30 +34,17 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
  */
 class BaseSerializer implements SerializerInterface
 {
-    use ConverterPathTrait;
-    use DateTimeCallbackTrait;
-    use LoggerAwareTrait;
-    use EntityManagerTrait;
-    use ServiceRegistryTrait;
+    use ConverterPathTrait,
+        DateTimeCallbackTrait,
+        LoggerAwareTrait,
+        EntityManagerTrait,
+        ServiceRegistryTrait,
+        KernelTrait,
+        ContextTrait,
+        ConfigurationTrait;
+
     protected ?Serializer $serializer = null;
-    protected ?string $context = null;
-    protected ConfigurationInterface $configuration;
-
-    /**
-     * @return string|null
-     */
-    public function getContext(): ?string
-    {
-        return $this->context;
-    }
-
-    /**
-     * @param string|null $context
-     */
-    public function setContext(?string $context): void
-    {
-        $this->context = $context;
-    }
+    protected ?NameConverterInterface $nameConverter = null;
 
     /**
      * @param ResourceInterface $object
@@ -120,19 +112,26 @@ class BaseSerializer implements SerializerInterface
      */
     protected function getNameConverter(): ?NameConverter
     {
-
         if ($this->nameConverter instanceof NameConverter) {
             return $this->nameConverter;
         }
 
-        $path = ($this->getConfiguration()->getProvider() !== ConfigurationInterface::_DEFAULT_PROVIDER) ?
-            sprintf($this->getConverterPath(), $this->getConfiguration()->getProvider()):
-            $this->getConfiguration()->getConverterPath();
-
-        $this->nameConverter = new NameConverter($path);
+        $this->nameConverter = new NameConverter($this->resolvePath());
         $this->nameConverter->setContext($this->getContext());
 
         return $this->nameConverter;
+    }
+
+    /**
+     * @return string
+     */
+    protected function resolvePath():string {
+        if ($this->getConfiguration()->getProvider() === ConfigurationInterface::_CUSTOM_PROVIDER)
+            return $this->getConfiguration()->getConverterPath();
+
+        $path = sprintf($this->getConverterPath(), $this->getConfiguration()->getProvider());
+
+        return $this->getKernel()->locateResource($path);
     }
 
     /**
@@ -152,9 +151,11 @@ class BaseSerializer implements SerializerInterface
      */
     public function deserialize(array $data, $type = null, array $context = [])
     {
+        if(empty($this->getContext())) $this->setContext($type);
+
         return $this->getSerializer()->deserialize(
             json_encode($data),
-            !empty($type) ? $type: $this->getContext(),
+            $this->getContext(),
             'json',
             $context
         );
@@ -209,21 +210,5 @@ class BaseSerializer implements SerializerInterface
     protected function camelCaseToSnakeCase($propertyName)
     {
         return strtolower(preg_replace('/[A-Z]/', '_\\0', lcfirst($propertyName)));
-    }
-
-    /**
-     * @return ConfigurationInterface
-     */
-    public function getConfiguration(): ConfigurationInterface
-    {
-        return $this->configuration;
-    }
-
-    /**
-     * @param ConfigurationInterface $configuration
-     */
-    public function setConfiguration(ConfigurationInterface $configuration): void
-    {
-        $this->configuration = $configuration;
     }
 }

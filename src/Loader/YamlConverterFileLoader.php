@@ -16,7 +16,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 class YamlConverterFileLoader implements YamlConverterFileLoaderInterface
 {
-    private Parser $yamlParser;
+    private ?Parser $yamlParser = null;
 
     /**
      * An array of YAML class descriptions.
@@ -52,7 +52,7 @@ class YamlConverterFileLoader implements YamlConverterFileLoaderInterface
      */
     public function loadClass(string $context) : array
     {
-        if (null === $this->classes) {
+        if (empty($this->classes)) {
             $this->classes = $this->getClassesFromYaml();
         }
 

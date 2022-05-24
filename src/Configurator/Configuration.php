@@ -14,7 +14,7 @@ class Configuration implements ConfigurationInterface
 {
     use ConverterPathTrait;
     protected ?string $identifier = 'id';
-    protected ?string $provider = self::_DEFAULT_PROVIDER;
+    protected ?string $provider = self::_CUSTOM_PROVIDER;
     protected bool $updater = false;
 
     /**

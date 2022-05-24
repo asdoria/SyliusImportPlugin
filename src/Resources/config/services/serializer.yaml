@@ -1,9 +1,7 @@
 parameters:
-  asdoria_import.converter.path: "@@AsdoriaSyliusImportPlugin/src/Resources/config/converter/%s.yaml"
+  asdoria_import.converter.path: "@@AsdoriaSyliusImportPlugin/Resources/config/converter/%s.yaml"
 
 services:
-
-
     asdoria_import.serializer.abstract:
       abstract: true
       class: Asdoria\SyliusImportPlugin\Serializer\BaseSerializer
@@ -11,6 +9,7 @@ services:
         - [ setEntityManager, ['@doctrine.orm.default_entity_manager']]
         - [ setSerializerResolver, ['@asdoria_import.serializer_service_registry']]
         - [ setConverterPath, ['%asdoria_import.converter.path%']]
+        - [ setKernel, ['@kernel']]
 
     asdoria_import.serializer.generic:
       parent: asdoria_import.serializer.abstract

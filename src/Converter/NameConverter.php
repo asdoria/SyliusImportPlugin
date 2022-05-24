@@ -7,6 +7,7 @@ namespace Asdoria\SyliusImportPlugin\Converter;
 
 use Asdoria\SyliusImportPlugin\Converter\Model\NameConverterInterface;
 use Asdoria\SyliusImportPlugin\Loader\YamlConverterFileLoader;
+use Asdoria\SyliusImportPlugin\Traits\ContextTrait;
 
 /**
  * Class NameConverter
@@ -16,10 +17,7 @@ use Asdoria\SyliusImportPlugin\Loader\YamlConverterFileLoader;
  */
 class NameConverter implements NameConverterInterface
 {
-    /**
-     * @var string|null $context
-     */
-    protected ?string $context = null;
+    use ContextTrait;
 
     /**
      * @var YamlConverterFileLoader
@@ -34,22 +32,6 @@ class NameConverter implements NameConverterInterface
     public function __construct(string $path)
     {
         $this->loader = new YamlConverterFileLoader($path);
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getContext(): ?string
-    {
-        return $this->context;
-    }
-
-    /**
-     * @param string|null $context
-     */
-    public function setContext(?string $context): void
-    {
-        $this->context = $context;
     }
 
     /**

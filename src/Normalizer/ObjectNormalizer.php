@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 namespace Asdoria\SyliusImportPlugin\Normalizer;
 
+use Asdoria\SyliusImportPlugin\Converter\Model\NameConverterInterface;
 use Symfony\Component\PropertyAccess\Exception\NoSuchPropertyException;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer as BaseObjectNormalizer;
 
@@ -41,6 +42,50 @@ class ObjectNormalizer extends BaseObjectNormalizer
     }
 
     /**
+     * @return array
+     */
+    public function getExtraAttributes(): array
+    {
+        /** @var NameConverterInterface $nameConverter */
+        $nameConverter = $this->nameConverter;
+        if (!$nameConverter instanceof NameConverterInterface) return [];
+
+        return $nameConverter->getExtraAttributes();
+    }
+
+    /**
+     * @return array
+     */
+    public function getResetKeys(): array
+    {
+        /** @var NameConverterInterface $nameConverter */
+        $nameConverter = $this->nameConverter;
+        if (!$nameConverter instanceof NameConverterInterface) return [];
+        return $nameConverter->getResets();
+    }
+
+    /**
+     * @return array
+     */
+    public function getIgnoreKeys(): array
+    {
+        /** @var NameConverterInterface $nameConverter */
+        $nameConverter = $this->nameConverter;
+        if (!$nameConverter instanceof NameConverterInterface) return [];
+        return $nameConverter->getIgnores();
+    }
+    /**
+     * @return array
+     */
+    public function getPriorityKeys(): array
+    {
+        /** @var NameConverterInterface $nameConverter */
+        $nameConverter = $this->nameConverter;
+        if (!$nameConverter instanceof NameConverterInterface) return [];
+        return $nameConverter->getPriorities();
+    }
+
+    /**
      * Normalizes the given data to an array. It's particularly useful during
      * the denormalization process.
      *
@@ -50,9 +95,27 @@ class ObjectNormalizer extends BaseObjectNormalizer
      */
     protected function prepareForDenormalization($data)
     {
-        $result = parent::prepareForDenormalization($data);
+        $result = (array) $data;
 
-        $this->data = $result;
+        foreach ($this->getIgnoreKeys() as $key => $val) {
+            unset($result[$key]);
+        }
+
+        foreach ($this->getResetKeys() as $key => $val) {
+            if (isset($result[$key]) && is_array($result[$key])) {
+                $result = array_merge($result, $result[$key] ?? []);
+                unset($result[$key]);
+            }
+        }
+
+        foreach ($this->getExtraAttributes() as $key => $val) {
+            if (isset($result[$key])) {
+                continue;
+            }
+            $result[$key] =  $result[$val] ?? $val;
+        }
+
+        $this->data = array_merge($this->getPriorityKeys(), $result);
 
         return $this->data;
     }

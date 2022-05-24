@@ -27,12 +27,14 @@ class HandlerResolver implements  HandlerResolverInterface
     /**
      * @param ResourceInterface           $resource
      * @param ImportNotificationInterface $message
+     *
+     * @return ResourceInterface|null
      */
-    public function handle(ResourceInterface $resource, ImportNotificationInterface $message): void {
+    public function handle(ImportNotificationInterface $message, ?ResourceInterface $resource = null): ?ResourceInterface {
 
         $serializer = $this->serviceRegistry->get($message->getEntityClass());
 
-        if (!$serializer instanceof SerializerInterface)  return;
+        if (!$serializer instanceof SerializerInterface)  return null;
 
         $context = [];
 
@@ -41,6 +43,8 @@ class HandlerResolver implements  HandlerResolverInterface
         if ($message->getConfiguration()->isUpdater())
             $context[AbstractNormalizer::OBJECT_TO_POPULATE] = $resource;
 
-        $serializer->deserialize($message->getData(), $message->getEntityClass(), $context);
+        $entity = $serializer->deserialize($message->getData(), $message->getEntityClass(), $context);
+
+        return $entity;
     }
 }

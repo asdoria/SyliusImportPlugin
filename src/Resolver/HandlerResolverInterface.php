@@ -16,8 +16,10 @@ use Sylius\Component\Resource\Model\ResourceInterface;
 interface HandlerResolverInterface
 {
     /**
-     * @param ResourceInterface           $resource
      * @param ImportNotificationInterface $message
+     * @param ResourceInterface|null      $resource
+     *
+     * @return ResourceInterface|null
      */
-    public function handle(ResourceInterface $resource, ImportNotificationInterface $message): void;
+    public function handle(ImportNotificationInterface $message, ?ResourceInterface $resource = null): ?ResourceInterface;
 }
