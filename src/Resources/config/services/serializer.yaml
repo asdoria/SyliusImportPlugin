@@ -11,9 +11,6 @@ services:
         - [ setConverterPath, ['%asdoria_import.converter.path%']]
         - [ setKernel, ['@kernel']]
 
-    asdoria_import.serializer.generic:
-      parent: asdoria_import.serializer.abstract
-
     asdoria_import.serializer.customer:
       class: Asdoria\SyliusImportPlugin\Serializer\CustomerSerializer
       parent: asdoria_import.serializer.abstract
@@ -25,3 +22,13 @@ services:
       parent: asdoria_import.serializer.abstract
       tags:
         - { name: asdoria_import_serializer, type: 'App\Entity\User\ShopUser' }
+
+    asdoria_import.serializer.address:
+      parent:  asdoria_import.serializer.abstract
+      tags:
+        - { name: asdoria_import_serializer, type: 'App\Entity\Addressing\Address' }
+
+    asdoria_import.serializer.customer_group:
+      parent:  asdoria_import.serializer.abstract
+      tags:
+        - { name: asdoria_import_serializer, type: 'App\Entity\Customer\CustomerGroup' }

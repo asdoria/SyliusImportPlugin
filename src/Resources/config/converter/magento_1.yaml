@@ -1,0 +1,27 @@
+App\Entity\Customer\Customer:
+    normalize: ~
+    denormalize:
+        company: companyName
+        lastname: lastName
+        firstname: firstName
+
+App\Entity\User\ShopUser:
+    priority:
+        customer: ~
+    normalize: ~
+    denormalize:
+        id_gender: gender
+        lastname: lastName
+        firstname: firstName
+    extra_attributes:
+        enabled: 1
+
+App\Entity\Addressing\Address:
+    normalize: ~
+    denormalize:
+        country_id: countryCode
+        lastname: lastName
+        firstname: firstName
+        telephone: phoneNumber
+    extra_attributes:
+        enabled: 1
