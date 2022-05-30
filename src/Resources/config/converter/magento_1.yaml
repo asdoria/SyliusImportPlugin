@@ -25,3 +25,18 @@ App\Entity\Addressing\Address:
         telephone: phoneNumber
     extra_attributes:
         enabled: 1
+
+App\Entity\Product\Product:
+    normalize: ~
+    denormalize:
+        media_gallery: images
+        sku: code
+        status: enabled
+    extra_attributes:
+        attributes: ~
+
+App\Entity\Product\ProductAttribute:
+    normalize: ~
+    denormalize: ~
+    extra_attributes:
+        storageType: ~

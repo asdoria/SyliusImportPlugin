@@ -169,6 +169,10 @@ class BaseSerializer implements SerializerInterface
     protected function getSerializerByClass(string $className): ?SerializerInterface {
         /** @var SerializerInterface $serializer */
         $serializer  = $this->getSerializerResolver()->get($className);
+        
+        if (!$serializer instanceof SerializerInterface)
+            throw new \InvalidArgumentException(sprintf('serializer not found for %s', $className));
+
         $serializer->setContext($className);
         $serializer->setSerializerResolver($this->getSerializerResolver());
         $serializer->setConfiguration($this->getConfiguration());

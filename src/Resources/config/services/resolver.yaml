@@ -15,3 +15,13 @@ services:
       tags:
         - { name: asdoria_import_handler_resolver, type: 'App\Entity\User\ShopUser' }
 
+    asdoria_import.handle_resolver.product_attribute:
+      parent: asdoria_import.handle_resolver.base
+      tags:
+        - { name: asdoria_import_handler_resolver, type: 'App\Entity\Product\ProductAttribute' }
+
+    asdoria_import.handle_resolver.product:
+      parent: asdoria_import.handle_resolver.base
+      tags:
+        - { name: asdoria_import_handler_resolver, type: 'App\Entity\Product\Product' }
+
