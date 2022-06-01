@@ -40,7 +40,7 @@ class HandlerResolver implements  HandlerResolverInterface
 
         $serializer->setConfiguration($message->getConfiguration());
 
-        if ($message->getConfiguration()->isUpdater())
+        if ($message->getConfiguration()->isUpdater() && $resource instanceof ResourceInterface)
             $context[AbstractNormalizer::OBJECT_TO_POPULATE] = $resource;
 
         $entity = $serializer->deserialize($message->getData(), $message->getEntityClass(), $context);

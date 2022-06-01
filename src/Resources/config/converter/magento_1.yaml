@@ -35,8 +35,23 @@ App\Entity\Product\Product:
     extra_attributes:
         attributes: ~
 
+App\Entity\Product\ProductTranslation:
+    normalize: ~
+    denormalize:
+        url_key: slug
+        short_description: shortDescription
+        meta_description: metaDescription
+
+App\Entity\Product\ProductVariant:
+    normalize: ~
+    denormalize: ~
+    extra_attributes:
+        code: ean
+        channelPricings: price
+        translations: ~
+
 App\Entity\Product\ProductAttribute:
     normalize: ~
     denormalize: ~
     extra_attributes:
-        storageType: ~
+        storageType: type

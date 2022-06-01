@@ -7,12 +7,15 @@ namespace Asdoria\SyliusImportPlugin\Serializer;
 
 
 use App\Entity\Product\ProductAttributeTranslation;
-use App\Model\Product\ProductAttributeInterface;
 use Asdoria\SyliusImportPlugin\Traits\DefaultLocaleTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Ramsey\Uuid\Uuid;
+use Sylius\Component\Attribute\AttributeType\CheckboxAttributeType;
+use Sylius\Component\Attribute\AttributeType\IntegerAttributeType;
+use Sylius\Component\Attribute\AttributeType\SelectAttributeType;
 use Sylius\Component\Attribute\Model\AttributeValueInterface;
+use Sylius\Component\Product\Model\ProductAttributeInterface;
 use Sylius\Component\Product\Model\ProductAttributeTranslationInterface;
 
 /**
@@ -25,15 +28,16 @@ class ProductAttributeSerializer extends BaseSerializer
 {
 
     use DefaultLocaleTrait;
+
     /**
      * @return array
      */
     protected function getCallbacks(): array
     {
         return [
-            'configuration'  => $this->configurationCallback(),
+            'configuration' => $this->configurationCallback(),
             'translations'  => $this->translationsCallback(),
-            'storageType'  => $this->storageTypeCallback(),
+            'storageType'   => $this->storageTypeCallback(),
         ];
     }
 
@@ -43,23 +47,43 @@ class ProductAttributeSerializer extends BaseSerializer
     protected function storageTypeCallback(): \Closure
     {
         return function ($value, $object, $key, $data): string {
-            return AttributeValueInterface::STORAGE_JSON;
+            switch ($value) {
+                case SelectAttributeType::TYPE:
+                    return AttributeValueInterface::STORAGE_JSON;
+                case IntegerAttributeType::TYPE:
+                    return AttributeValueInterface::STORAGE_INTEGER;
+                case CheckboxAttributeType::TYPE:
+                    return AttributeValueInterface::STORAGE_BOOLEAN;
+                default:
+                    return AttributeValueInterface::STORAGE_TEXT;
+            }
         };
     }
+
     /**
      * @return \Closure
      */
     protected function configurationCallback(): \Closure
     {
-        return function ($value, $object, $key, $data) : array{
-            if(!is_array($value)) $value = json_decode($value, true);
+        return function ($value, ProductAttributeInterface $object, $key, $data): array {
+            if ($object->getStorageType() !== AttributeValueInterface::STORAGE_JSON) return [];
+            if (!is_array($value)) $value = json_decode($value, true);
 
-            if(empty($value)) return [];
+            if (empty($value)) return [];
 
             $configuration = array_reduce($value, function ($carry, $item) {
-                $carry['choices'][$this->getUniqueKey()][$this->getDefaultLocale()] = $item;
+                if (empty(array_filter($item))) return $carry;
+                $key                             = $item['key'] ?? $this->getUniqueKey();
+                $value                           = $item['value'] ?? $item;
+                $locale                          = $item['locale'] ?? $this->getDefaultLocale();
+
+                $carry['choices'][$key][$locale] = $value;
                 return $carry;
             }, []);
+            
+            $configuration["multiple"] = false;
+            $configuration["min"] = null;
+            $configuration["max"] = null;
 
             return $configuration;
         };
@@ -75,15 +99,18 @@ class ProductAttributeSerializer extends BaseSerializer
         $serializer = $this->getSerializerByClass(ProductAttributeTranslation::class);
 
         return function ($value, ProductAttributeInterface $object, $key, $data) use ($serializer): Collection {
-            if(!is_array($value)) $value = json_decode($value, true);
-            $context   = $this->getSerializerContext($object, $key);
-            $translations = new ArrayCollection();
+            if (!is_array($value)) $value = json_decode($value, true);
+            $context      = $this->getSerializerContext($object, $key);
+            $translations = $object->getTranslations();
             foreach ($value as $item) {
                 /** @var ProductAttributeTranslationInterface $trans */
-                $trans = $serializer->deserialize($item, null, $context);
-                $this->getEntityManager()->persist($trans);
-                $trans->setTranslatable($object);
-                $translations->add($trans);
+                $trans   = $serializer->deserialize($item, null, $context);
+                $isNew = $translations->filter(fn($translation) => $translation->getLocale() === $trans->getLocale())->isEmpty();
+                if ($isNew) {
+                    $this->getEntityManager()->persist($trans);
+                    $trans->setTranslatable($object);
+                    $translations->add($trans);
+                }
             }
             return $translations;
         };

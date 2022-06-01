@@ -51,6 +51,7 @@ services:
       parent: asdoria_import.serializer.abstract
       calls:
         - ['setDefaultLocale', ['%locale%']]
+        - ['setUploader', ['@sylius.image_uploader']]
       tags:
         - { name: asdoria_import_serializer, type: 'App\Entity\Product\Product' }
 
@@ -60,6 +61,7 @@ services:
         - { name: asdoria_import_serializer, type: 'App\Entity\Product\ProductTranslation' }
 
     asdoria_import.serializer.product_attribute_value:
+      class: Asdoria\SyliusImportPlugin\Serializer\ProductAttributeValueSerializer
       parent:  asdoria_import.serializer.abstract
       tags:
         - { name: asdoria_import_serializer, type: 'App\Entity\Product\ProductAttributeValue' }
@@ -70,6 +72,19 @@ services:
         - { name: asdoria_import_serializer, type: 'App\Entity\Product\ProductImage' }
 
     asdoria_import.serializer.product_variant:
+      class: Asdoria\SyliusImportPlugin\Serializer\ProductVariantSerializer
       parent:  asdoria_import.serializer.abstract
+      calls:
+        - ['setDefaultLocale', ['%locale%']]
       tags:
         - { name: asdoria_import_serializer, type: 'App\Entity\Product\ProductVariant' }
+
+    asdoria_import.serializer.product_variant_translation:
+      parent:  asdoria_import.serializer.abstract
+      tags:
+        - { name: asdoria_import_serializer, type: 'App\Entity\Product\ProductVariantTranslation' }
+
+    asdoria_import.serializer.channel_pricing:
+      parent:  asdoria_import.serializer.abstract
+      tags:
+        - { name: asdoria_import_serializer, type: 'App\Entity\Channel\ChannelPricing' }
