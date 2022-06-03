@@ -88,3 +88,21 @@ services:
       parent:  asdoria_import.serializer.abstract
       tags:
         - { name: asdoria_import_serializer, type: 'App\Entity\Channel\ChannelPricing' }
+
+    asdoria_import.serializer.taxon:
+      class: Asdoria\SyliusImportPlugin\Serializer\TaxonSerializer
+      parent:  asdoria_import.serializer.abstract
+      calls:
+        - ['setDefaultLocale', ['%locale%']]
+      tags:
+        - { name: asdoria_import_serializer, type: 'App\Entity\Taxonomy\Taxon' }
+
+    asdoria_import.serializer.taxon_translation:
+      parent:  asdoria_import.serializer.abstract
+      tags:
+        - { name: asdoria_import_serializer, type: 'App\Entity\Taxonomy\TaxonTranslation' }
+
+    asdoria_import.serializer.product_taxon:
+      parent:  asdoria_import.serializer.abstract
+      tags:
+        - { name: asdoria_import_serializer, type: 'App\Entity\Product\ProductTaxon' }

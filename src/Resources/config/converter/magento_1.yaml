@@ -55,3 +55,16 @@ App\Entity\Product\ProductAttribute:
     denormalize: ~
     extra_attributes:
         storageType: type
+
+App\Entity\Taxonomy\Taxon:
+    normalize: ~
+    denormalize:
+        is_active: enabled
+        id: code
+
+App\Entity\Taxonomy\TaxonTranslation:
+    normalize: ~
+    denormalize:
+        meta_keywords: metaKeywords
+        meta_title: metaDescription
+        url_key: slug

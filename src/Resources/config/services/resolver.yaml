@@ -25,3 +25,8 @@ services:
       tags:
         - { name: asdoria_import_handler_resolver, type: 'App\Entity\Product\Product' }
 
+    asdoria_import.handle_resolver.taxon:
+      parent: asdoria_import.handle_resolver.base
+      tags:
+        - { name: asdoria_import_handler_resolver, type: 'App\Entity\Taxonomy\Taxon' }
+
