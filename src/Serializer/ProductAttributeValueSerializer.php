@@ -52,11 +52,13 @@ class ProductAttributeValueSerializer extends BaseSerializer
     protected function valueCallback(): \Closure
     {
         return function ($value, ProductAttributeValueInterface $object, $key, $data) {
-            $attr =  $object->getAttribute();
-            if (
-                $attr->getStorageType() === AttributeValueInterface::STORAGE_JSON &&
-                !is_array($value)
-            ) return [$value];
+            $attr    = $object->getAttribute();
+            $isJson  = $attr->getStorageType() === AttributeValueInterface::STORAGE_JSON;
+            $choices = $attr->getConfiguration()['choices'] ?? [];
+            if (in_array($value, array_keys($choices))) return [$value];
+            if (in_array(sprintf('v-%s', $value), array_keys($choices))) return [sprintf('v-%s', $value)];
+            if ($isJson) return null;
+
             return $value;
         };
     }

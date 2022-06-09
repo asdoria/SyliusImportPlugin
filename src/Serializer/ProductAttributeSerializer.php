@@ -76,11 +76,11 @@ class ProductAttributeSerializer extends BaseSerializer
                 $key                             = $item['key'] ?? $this->getUniqueKey();
                 $value                           = $item['value'] ?? $item;
                 $locale                          = $item['locale'] ?? $this->getDefaultLocale();
-
+                if (is_int($key)) $key = sprintf('v-%s', $key);
                 $carry['choices'][$key][$locale] = $value;
                 return $carry;
             }, []);
-            
+
             $configuration["multiple"] = false;
             $configuration["min"] = null;
             $configuration["max"] = null;

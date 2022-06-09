@@ -23,16 +23,16 @@ trait ProductVariantsCallbackTrait
     {
         /** @var SerializerInterface $serializer */
         $serializer = $this->getSerializerByClass(ProductVariant::class);
-
-        return function ($value, ProductInterface $object, $key, $data) use ($serializer): Collection {
+        $repo = $this->getEntityManager()->getRepository(ProductVariant::class);
+        return function ($value, ProductInterface $object, $key, $data) use ($serializer, $repo): Collection {
             if (!is_array($value)) $value = json_decode($value, true);
             $context  = $this->getSerializerContext($object, $key);
             $variants = $object->hasVariants() ? $object->getVariants() :new ArrayCollection();
             foreach ($value as $item) {
                 /** @var ProductVariantInterface $variant */
                 $variant = $serializer->deserialize($item, null, $context);
-                $isNew = $variants->filter(fn($item) => $item->getCode() === $variant->getCode())->isEmpty();
-                if ($isNew) {
+                $result  = $repo->findOneByCode($variant->getCode());
+                if (empty($result)) {
                     $this->getEntityManager()->persist($variant);
                     $variant->setProduct($object);
                     $variants->add($variant);
