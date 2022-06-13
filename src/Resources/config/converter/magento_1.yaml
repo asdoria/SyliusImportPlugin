@@ -34,6 +34,7 @@ App\Entity\Product\Product:
         status: enabled
     extra_attributes:
         attributes: ~
+        channels: ~
 
 App\Entity\Product\ProductTranslation:
     normalize: ~

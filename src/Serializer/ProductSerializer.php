@@ -8,6 +8,7 @@ namespace Asdoria\SyliusImportPlugin\Serializer;
 
 use App\Entity\Product\ProductTranslation;
 use App\Model\Product\ProductInterface;
+use Asdoria\SyliusImportPlugin\Serializer\Callback\ChannelsCallbackTrait;
 use Asdoria\SyliusImportPlugin\Serializer\Callback\ProductAttributeValuesCallbackTrait;
 use Asdoria\SyliusImportPlugin\Serializer\Callback\ProductImagesCallbackTrait;
 use Asdoria\SyliusImportPlugin\Serializer\Callback\ProductVariantsCallbackTrait;
@@ -29,6 +30,7 @@ class ProductSerializer extends BaseSerializer
     use ProductImagesCallbackTrait;
     use ProductVariantsCallbackTrait;
     use ProductAttributeValuesCallbackTrait;
+    use ChannelsCallbackTrait;
 
     /**
      * @return array
@@ -40,6 +42,7 @@ class ProductSerializer extends BaseSerializer
             'attributes'   => $this->productAttributeValuesCallback(),
             'images'       => $this->productImagesCallback(),
             'variants'     => $this->productVariantsCallback(),
+            'channels'     => $this->channelsCallback(),
         ];
     }
 
