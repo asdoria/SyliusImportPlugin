@@ -29,11 +29,7 @@ trait ChannelsCallbackTrait
         $channels = $this->getEntityManager()->getRepository(Channel::class)->findAll();
 
         return function ($value,ChannelsAwareInterface $object, $key, $data) use ($channels): Collection {
-            foreach ($channels as $channel) {
-                if(!$object->hasChannel()) continue;
-                $object->addChannel($channel);
-            }
-            return $object->getChannels();
+            return new ArrayCollection($channels);
         };
     }
 
