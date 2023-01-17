@@ -93,7 +93,7 @@ class ObjectNormalizer extends BaseObjectNormalizer
      *
      * @return array
      */
-    protected function prepareForDenormalization($data)
+    protected function prepareForDenormalization(mixed $data): array
     {
         $result = (array) $data;
 

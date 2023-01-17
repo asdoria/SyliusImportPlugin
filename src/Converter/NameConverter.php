@@ -39,7 +39,7 @@ class NameConverter implements NameConverterInterface
      *
      * @return string
      */
-    public function normalize($propertyName)
+    public function normalize(string $propertyName): string
     {
         return $this->loader->getNormalize($this->getContext())[$propertyName] ?? $propertyName;
     }
@@ -49,7 +49,7 @@ class NameConverter implements NameConverterInterface
      *
      * @return string
      */
-    public function denormalize($propertyName)
+    public function denormalize(string $propertyName): string
     {
         return $this->loader->getDenormalize($this->getContext())[$propertyName] ?? $propertyName;
     }
